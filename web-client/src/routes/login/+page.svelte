@@ -1,6 +1,6 @@
 <script>
   import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-  import { auth } from "$lib/firebase";
+  import { auth } from "$lib/firebase.svelte";
 
   // State management using Svelte 5 Runes
   let email = $state('');

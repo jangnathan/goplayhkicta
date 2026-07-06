@@ -1,7 +1,10 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { writable } from "svelte/store";
+import { browser } from "$app/env";
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -20,4 +23,33 @@ const firebaseConfig = {
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+
 const analytics = getAnalytics(app);
+
+class AuthManager {
+  user = $state(undefined); // undefined = loading, null = logged out
+
+  get isLoggedIn() { return !!this.user; }
+  get isChecking() { return this.user === undefined; }
+
+  constructor() {
+    if (browser) {
+      if (auth) {
+        onAuthStateChanged(auth, (firebaseUser) => {
+          this.user = firebaseUser;
+        });
+      }
+    }
+  }
+
+  async logout() {
+    const authInstance = getMyAuth();
+    if (authInstance) {
+      await signOut(authInstance);
+      window.location.href = "/login";
+    }
+  }
+}
+
+// Export a single instantiated structural manager
+export const authState = new AuthManager();

@@ -1,32 +1,45 @@
 <script>
+	import { authState } from '$lib/firebase.svelte';
+
 	let { children } = $props();
 
 	let showNotification = false;
 </script>
 
 <div class="app-layout">
-	<aside class="sidebar">
-		<div class="sidebar-brand">GoplayHK</div>
-		<nav class="sidebar-menu">
-			<a href="/app" class="menu-item active">
-				<span class="icon"></span> <span class="label">Home</span>
-			</a>
-			<a href="/app/matches" class="menu-item">
-				<i class="ri-calendar-fill"></i>
-				<span class="label">Matches</span>
-			</a>
-			<a href="/app/chat" class="menu-item">
-				<span class="icon"></span> <span class="label">Chats</span>
-			</a>
-			<a href="/app/profile" class="menu-item">
-				<span class="icon"></span> <span class="label">Profile</span>
-			</a>
-		</nav>
-	</aside>
+	<header class="top-bar">
+		<div class="logo">
+			<strong>GoplayHK</strong>
+		</div>
 
-	<main class="main-content">
-		{@render children()}
-	</main>
+		<div class="left-top">
+			<p class="username">{authState.user?.email}</p>
+		</div>
+	</header>
+
+	<div class="container">
+		<aside class="sidebar">
+			<nav class="sidebar-menu">
+				<a href="/app" class="menu-item active">
+					<span class="icon"></span> <span class="label">Home</span>
+				</a>
+				<a href="/app/matches" class="menu-item">
+					<i class="ri-calendar-fill"></i>
+					<span class="label">Matches</span>
+				</a>
+				<a href="/app/chat" class="menu-item">
+					<span class="icon"></span> <span class="label">Chats</span>
+				</a>
+				<a href="/app/profile" class="menu-item">
+					<span class="icon"></span> <span class="label">Profile</span>
+				</a>
+			</nav>
+		</aside>
+
+		<main class="main-content">
+			{@render children()}
+		</main>
+	</div>
 
 	{#if showNotification}
 		<div class="notification-toast">
@@ -44,13 +57,39 @@
 
 <style>
 	.app-layout {
-		display: grid;
+		display: flex;
+		flex-direction: column;
 		grid-template-columns: 240px 1fr;
 		height: 100%;
 		width: 100%;
 		background-color: var(--bg-main);
 		color: var(--text-dark);
 		overflow: hidden;
+	}
+
+	.top-bar {
+		width: 100%;
+		height: 64px;
+		background-color: #fff;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.top-bar .logo {
+		padding: 1rem;
+	}
+	.top-bar strong {
+		font-size: 2rem;
+	}
+	.top-bar .username {
+		font-size: 1.5rem;
+		margin-right: 2rem;
+	}
+
+	.container {
+		display: flex;
+		flex-direction: row;
 	}
 
 	.sidebar {
