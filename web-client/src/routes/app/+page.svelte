@@ -1,9 +1,13 @@
-<script lang="ts">
+<script>
+	import { activePage } from '$lib/dashboard';
+	import { onMount } from 'svelte';
+
+	onMount(() => {
+		activePage.set('home');
+	});
 </script>
 
-<header class="content-header">
-	<h1>Dashboard</h1>
-</header>
+<h1>Dashboard</h1>
 
 <div class="feed-section">
 	<div class="placeholder-card">

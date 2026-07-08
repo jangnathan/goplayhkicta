@@ -1,5 +1,6 @@
 <script>
 	import { authState } from '$lib/firebase.svelte';
+	import { activePage } from '$lib/dashboard';
 
 	let { children } = $props();
 
@@ -20,10 +21,10 @@
 	<div class="container">
 		<aside class="sidebar">
 			<nav class="sidebar-menu">
-				<a href="/app" class="menu-item active">
+				<a href="/app" class="menu-item" class:active={$activePage == "home"}>
 					<span class="icon"></span> <span class="label">Home</span>
 				</a>
-				<a href="/app/matches" class="menu-item">
+				<a href="/app/my-matches" class="menu-item" class:active={$activePage == "my-matches"}>
 					<i class="ri-calendar-fill"></i>
 					<span class="label">Matches</span>
 				</a>

@@ -2,6 +2,8 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+
 import { writable } from "svelte/store";
 import { browser } from "$app/env";
 
@@ -23,6 +25,7 @@ const firebaseConfig = {
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+export const db = getFirestore(app);
 
 const analytics = getAnalytics(app);
 
