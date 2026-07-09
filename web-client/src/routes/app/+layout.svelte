@@ -1,60 +1,73 @@
 <script>
 	import { authState } from '$lib/firebase.svelte';
 	import { activePage } from '$lib/dashboard';
+	import { goto } from '$app/navigation';
 
 	let { children } = $props();
 
 	let showNotification = false;
+
+	$effect(() => {
+		if (!authState.isChecking && !authState.isLoggedIn) {
+			goto('/login');
+		}
+	});
 </script>
 
-<div class="app-layout">
-	<header class="top-bar">
-		<div class="logo">
-			<strong>GoplayHK</strong>
-		</div>
-
-		<div class="left-top">
-			<p class="username">{authState.user?.email}</p>
-		</div>
-	</header>
-
-	<div class="container">
-		<aside class="sidebar">
-			<nav class="sidebar-menu">
-				<a href="/app" class="menu-item" class:active={$activePage == "home"}>
-					<span class="icon"></span> <span class="label">Home</span>
-				</a>
-				<a href="/app/my-matches" class="menu-item" class:active={$activePage == "my-matches"}>
-					<i class="ri-calendar-fill"></i>
-					<span class="label">Matches</span>
-				</a>
-				<a href="/app/chat" class="menu-item">
-					<span class="icon"></span> <span class="label">Chats</span>
-				</a>
-				<a href="/app/profile" class="menu-item">
-					<span class="icon"></span> <span class="label">Profile</span>
-				</a>
-			</nav>
-		</aside>
-
-		<main class="main-content">
-			{@render children()}
-		</main>
+{#if authState.isChecking}
+	<div class="loading-screen">
+		<p>Verifying session...</p>
 	</div>
-
-	{#if showNotification}
-		<div class="notification-toast">
-			<div class="toast-content">
-				<span class="toast-icon">⚡</span>
-				<div class="toast-text">
-					<p>Player matched with your Basketball game!</p>
-					<span class="toast-time">2m ago</span>
-				</div>
+{:else if authState.isLoggedIn}
+	<div class="app-layout">
+		<header class="top-bar">
+			<div class="logo">
+				<strong>GoplayHK</strong>
 			</div>
-			<button class="toast-close" on:click={() => (showNotification = false)}>&times;</button>
+
+			<div class="left-top">
+				<p class="username">{authState.user?.email}</p>
+			</div>
+		</header>
+
+		<div class="container">
+			<aside class="sidebar">
+				<nav class="sidebar-menu">
+					<a href="/app" class="menu-item" class:active={$activePage == 'home'}>
+						<span class="icon"></span> <span class="label">Home</span>
+					</a>
+					<a href="/app/my-matches" class="menu-item" class:active={$activePage == 'my-matches'}>
+						<i class="ri-calendar-fill"></i>
+						<span class="label">Matches</span>
+					</a>
+					<a href="/app/chat" class="menu-item">
+						<span class="icon"></span> <span class="label">Chats</span>
+					</a>
+					<a href="/app/profile" class="menu-item">
+						<span class="icon"></span> <span class="label">Profile</span>
+					</a>
+				</nav>
+			</aside>
+
+			<main class="main-content">
+				{@render children()}
+			</main>
 		</div>
-	{/if}
-</div>
+
+		{#if showNotification}
+			<div class="notification-toast">
+				<div class="toast-content">
+					<span class="toast-icon">⚡</span>
+					<div class="toast-text">
+						<p>Player matched with your Basketball game!</p>
+						<span class="toast-time">2m ago</span>
+					</div>
+				</div>
+				<button class="toast-close" on:click={() => (showNotification = false)}>&times;</button>
+			</div>
+		{/if}
+	</div>
+{/if}
 
 <style>
 	.app-layout {

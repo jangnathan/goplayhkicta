@@ -1,6 +1,7 @@
 <script>
 	import { activePage } from '$lib/dashboard';
 	import { SportLabels } from '$lib/sports';
+	import { LocationEnum, LocationDetails } from '$lib/locations';
 
 	import { createMatch } from '$lib/matches'; // The JS function we built earlier
 	import { goto } from '$app/navigation'; // SvelteKit router navigation
@@ -10,15 +11,13 @@
 
 	// Form State bound directly to inputs
 	let title = '';
-    let description = '';
+	let description = '';
 	let sport = 0;
 
 	let spotsTotal = 10;
 
 	// Grouped location structure
-	let locationName = '';
-	let latitude = '';
-	let longitude = '';
+	let locationID = 0;
 
 	let isSubmitting = false;
 	let errorMessage = '';
@@ -27,16 +26,27 @@
 		isSubmitting = true;
 		errorMessage = '';
 
+		if (title == '') {
+			errorMessage = 'Write a title';
+			return;
+		}
+		if (sport == 0) {
+			errorMessage = 'Select a sport';
+			return;
+		}
+		if (locationID == 0) {
+			errorMessage = "Select a location";
+			return;
+		}
+
 		try {
 			// Package the exact payload layout expected by our Firestore function
 			const formData = {
 				title,
-                description,
+				description,
 				sport,
 				spotsTotal,
-				locationName,
-				latitude,
-				longitude
+				locationID,
 			};
 
 			await createMatch(formData);
@@ -84,7 +94,7 @@
 				<div class="form-row">
 					<div class="input-group">
 						<label for="sport">Sport Type</label>
-						<select id="sport" bind:value={sport}>
+						<select id="sport" bind:value={sport} required>
 							{#each Object.entries(SportLabels) as [value, label]}
 								<option value={Number(value)}>{label}</option>
 							{/each}
@@ -100,45 +110,19 @@
 
 			<div class="form-section">
 				<h2 class="section-title">Location</h2>
-				<p class="section-desc">
-                Set location so that it may be recommended to closer people
-				</p>
+				<p class="section-desc">Set location so that it may be recommended to closer people</p>
 
 				<div class="input-group">
 					<label for="locName">Court / Venue Name</label>
-					<input
-						type="text"
-						id="locName"
-						bind:value={locationName}
-						placeholder="e.g., Victoria Park Court #2"
-						required
-					/>
-				</div>
-
-				<div class="form-row">
-					<div class="input-group">
-						<label for="lat">Latitude (Optional math metric)</label>
-						<input
-							type="number"
-							step="any"
-							id="lat"
-							bind:value={latitude}
-							placeholder="e.g., 22.2822"
-						/>
-					</div>
-
-					<div class="input-group">
-						<label for="lng">Longitude (Optional math metric)</label>
-						<input
-							type="number"
-							step="any"
-							id="lng"
-							bind:value={longitude}
-							placeholder="e.g., 114.1895"
-						/>
-					</div>
+					<select id="location" bind:value={locationID} required>
+						{#each Object.entries(LocationDetails) as [id, detail]}
+							<option value={Number(id)}>{detail.name}</option>
+						{/each}
+					</select>
 				</div>
 			</div>
+
+			<p>{errorMessage}</p>
 
 			<div class="actions-row">
 				<a href="/app/my-matches" class="cancel-link">Cancel</a>
