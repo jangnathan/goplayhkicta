@@ -36,7 +36,7 @@
 					displayName: displayName
 				});
 
-				signUpCreateProfile({
+				await signUpCreateProfile({
 					uid: userCredential.user.uid,
 					displayName: displayName
 				});
@@ -70,7 +70,7 @@
 					displayName: displayName
 				});
 
-				signUpCreateProfile({
+				await signUpCreateProfile({
 					uid: result.user.uid,
 					displayName: displayName
 				});
