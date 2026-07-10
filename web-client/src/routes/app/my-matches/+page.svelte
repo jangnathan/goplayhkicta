@@ -1,39 +1,22 @@
 <script>
+	import CreatorMatchCard from '$lib/component/CreatorMatchCard.svelte';
 	import { activePage } from '$lib/dashboard';
+	import { authState } from '$lib/firebase.svelte';
+	import { fetchMatches } from '$lib/matches';
+	import { onMount } from 'svelte';
 
 	// Tell your sidebar layout that "my-matches" is the active view
 	activePage.set('my-matches');
 
-	// Filtered mock data representing the user's personal schedule
-	let hostingMatches = [
-		{
-			id: 1,
-			title: 'Friday Night 5v5',
-			sport: 'Basketball',
-			location: 'Victoria Park',
-			spots: '8/10',
-			status: 'Upcoming'
-		}
-	];
+	let hostingMatches = [];
+	let isLoadingHostingMatches = $state(true);
 
-	let joinedMatches = [
-		{
-			id: 2,
-			title: 'Casual Lunch Run',
-			sport: 'Soccer',
-			location: 'South Park Field',
-			spots: '11/14',
-			status: 'Tomorrow'
-		},
-		{
-			id: 3,
-			title: 'Morning 3v3',
-			sport: 'Basketball',
-			location: 'Downtown YMCA',
-			spots: '3/6',
-			status: 'Next Week'
-		}
-	];
+	onMount(async () => {
+		hostingMatches = await fetchMatches({ creatorID: authState.user?.uid });
+		isLoadingHostingMatches = false;
+	});
+
+	let joinedMatches = [];
 </script>
 
 <div class="page-layout">
@@ -46,47 +29,14 @@
 	<div class="schedule-sections">
 		<section class="schedule-group">
 			<h2 class="section-heading">Matches You're Hosting</h2>
-			{#if hostingMatches.length === 0}
+			{#if isLoadingHostingMatches || hostingMatches.length === 0}
 				<div class="empty-state">
 					<p>You aren't organizing any matches right now.</p>
 				</div>
 			{:else}
 				<div class="matches-grid">
 					{#each hostingMatches as match}
-						<div class="match-card host-card">
-							<div class="match-badge status-badge">{match.status}</div>
-							<span class="sport-tag">{match.sport}</span>
-							<h3 class="match-title">{match.title}</h3>
-							<p class="match-location">📍 {match.location}</p>
-							<div class="match-footer">
-								<span class="match-spots">👥 {match.spots} filled</span>
-								<button class="manage-button">Edit Match</button>
-							</div>
-						</div>
-					{/each}
-				</div>
-			{/if}
-		</section>
-
-		<section class="schedule-group">
-			<h2 class="section-heading">Matches You've Joined</h2>
-			{#if joinedMatches.length === 0}
-				<div class="empty-state">
-					<p>You haven't joined any upcoming matches yet.</p>
-				</div>
-			{:else}
-				<div class="matches-grid">
-					{#each joinedMatches as match}
-						<div class="match-card">
-							<div class="match-badge">{match.status}</div>
-							<span class="sport-tag">{match.sport}</span>
-							<h3 class="match-title">{match.title}</h3>
-							<p class="match-location">📍 {match.location}</p>
-							<div class="match-footer">
-								<span class="match-spots">👥 {match.spots} players</span>
-								<button class="leave-button">Leave Game</button>
-							</div>
-						</div>
+						<CreatorMatchCard {match}></CreatorMatchCard>
 					{/each}
 				</div>
 			{/if}

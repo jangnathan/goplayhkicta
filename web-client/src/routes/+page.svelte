@@ -1,4 +1,14 @@
 <script>
+	import { authState } from '$lib/firebase.svelte';
+
+	let isLoggedIn = $state(false);
+
+	$effect(() => {
+		if (authState.isLoggedIn) {
+			console.log('Check login');
+			isLoggedIn = true;
+		}
+	});
 </script>
 
 <div class="landing-container">
@@ -14,12 +24,17 @@
 	<section class="hero">
 		<div class="hero-content">
 			<h1>GoPlay HK</h1>
-			<p class="subtitle">
-            Find pickup games, a badminton partner, and book pitches
-			</p>
-			<div class="cta-group">
-				<a href="/register" class="btn btn-primary">Sign up</a>
-			</div>
+			<p class="subtitle">Find pickup games, a badminton partner, and book pitches</p>
+
+			{#if isLoggedIn}
+				<div class="cta-group">
+					<a href="/app" class="btn btn-primary">Enter app</a>
+				</div>
+			{:else}
+				<div class="cta-group">
+					<a href="/register" class="btn btn-primary">Sign up</a>
+				</div>
+			{/if}
 		</div>
 		<div class="hero-visual">
 			<div class="mock-app-screen">
@@ -47,25 +62,19 @@
 			<div class="feature-card">
 				<div class="feature-icon"></div>
 				<h3>Discover</h3>
-				<p>
-                Browse based on your favorite sport, preferences, and location
-				</p>
+				<p>Browse based on your favorite sport, preferences, and location</p>
 			</div>
 
 			<div class="feature-card">
 				<div class="feature-icon"></div>
 				<h3>Match</h3>
-				<p>
-                A matchmaking system
-				</p>
+				<p>A matchmaking system</p>
 			</div>
 
 			<div class="feature-card">
 				<div class="feature-icon"></div>
 				<h3>Chat & Play</h3>
-				<p>
-                    Get to know your opponent!
-				</p>
+				<p>Get to know your opponent!</p>
 			</div>
 		</div>
 	</section>
@@ -81,7 +90,6 @@
 </div>
 
 <style>
-
 	/* Structural Base Layout Canvas */
 	.landing-container {
 		background-color: var(--bg-main);

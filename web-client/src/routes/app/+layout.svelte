@@ -1,8 +1,8 @@
 <script>
-	import { authState } from '$lib/firebase.svelte';
+	import { signOut } from 'firebase/auth';
+	import { authState, auth } from '$lib/firebase.svelte';
 	import { activePage } from '$lib/dashboard';
 	import { goto } from '$app/navigation';
-
 	let { children } = $props();
 
 	let showNotification = false;
@@ -12,6 +12,16 @@
 			goto('/login');
 		}
 	});
+
+	async function logoutApp() {
+		try {
+			await signOut(auth);
+
+			window.location.href = '/';
+		} catch (error) {
+			console.error('Error logging out:', error.message);
+		}
+	}
 </script>
 
 {#if authState.isChecking}
@@ -25,8 +35,12 @@
 				<strong>GoplayHK</strong>
 			</div>
 
-			<div class="left-top">
+			<div class="user-right">
 				<p class="username">{authState.user?.email}</p>
+
+				<button class="btn logout" on:click={logoutApp}>
+					<i class="ri-logout-box-r-line"> </i>
+				</button>
 			</div>
 		</header>
 
@@ -40,11 +54,14 @@
 						<i class="ri-calendar-fill"></i>
 						<span class="label">Matches</span>
 					</a>
-					<a href="/app/chat" class="menu-item">
-						<span class="icon"></span> <span class="label">Chats</span>
+					<a href="/app/chat" class="menu-item" class:active={$activePage == 'chat'}>
+						<span class="icon"></span> <span class="label">Chat</span>
 					</a>
-					<a href="/app/profile" class="menu-item">
+					<a href="/app/profile" class="menu-item" class:active={$activePage == 'profile'}>
 						<span class="icon"></span> <span class="label">Profile</span>
+					</a>
+					<a href="/app/setting" class="menu-item" class:active={$activePage == 'setting'}>
+						<span class="icon"></span> <span class="label">Settings</span>
 					</a>
 				</nav>
 			</aside>
@@ -97,8 +114,21 @@
 		font-size: 2rem;
 	}
 	.top-bar .username {
+		font-size: 1.2rem;
+		margin-right: 1rem;
+	}
+	.user-right {
+		display: flex;
+		flex-direction: row;
+		padding: 2px;
+		margin-right: 16px;
+	}
+	.user-right .logout {
+		background: none;
+		border: none;
 		font-size: 1.5rem;
-		margin-right: 2rem;
+		padding: 2px;
+		cursor: pointer;
 	}
 
 	.container {
@@ -112,14 +142,6 @@
 		display: flex;
 		flex-direction: column;
 		padding: 24px 16px;
-	}
-
-	.sidebar-brand {
-		font-size: 20px;
-		font-weight: 800;
-		letter-spacing: -0.5px;
-		margin-bottom: 40px;
-		padding-left: 12px;
 	}
 
 	.sidebar-menu {
@@ -151,37 +173,6 @@
 		flex-direction: column;
 		overflow-y: auto;
 		padding: 40px;
-	}
-
-	.content-header {
-		margin-bottom: 32px;
-	}
-
-	.content-header h1 {
-		font-size: 32px;
-		font-weight: 800;
-		margin: 0 0 4px 0;
-	}
-
-	.content-header p {
-		margin: 0;
-		color: var(--text-muted);
-	}
-
-	.placeholder-card {
-		background-color: var(--card-bg);
-		border: 2px dashed var(--border-color);
-		border-radius: var(--radius-lg);
-		padding: 80px 40px;
-		text-align: center;
-		color: var(--text-muted);
-		max-width: 800px;
-	}
-
-	.placeholder-card h3 {
-		color: var(--text-dark);
-		margin: 0 0 12px 0;
-		font-size: 20px;
 	}
 
 	.notification-toast {

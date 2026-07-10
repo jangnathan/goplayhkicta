@@ -1,5 +1,5 @@
-import { authState, db } from "./firebase.svelte";
-import { collection, addDoc, query, getDocs, limit } from "firebase/firestore";
+import { auth, authState, db } from "./firebase.svelte";
+import { collection, addDoc, query, getDocs, limit, serverTimestamp, where } from "firebase/firestore";
 
 export async function createMatch(formData) {
     const matchesCollection = collection(db, 'matches');
@@ -12,11 +12,12 @@ export async function createMatch(formData) {
 
             locationID: formData.locationID,
             spotsTotal: Number(formData.spotsTotal),
+            joinedPlayers: [authState.user?.uid],
 
             // CRITICAL: Must match request.auth.uid in your Security Rule
-            creatorId: authState.user?.uid,
+            creatorID: authState.user?.uid,
 
-            createdAt: new Date().toISOString()
+            createdAt: serverTimestamp()
         };
 
         const addDocResult = await addDoc(matchesCollection, matchPayload);
@@ -29,15 +30,20 @@ export async function createMatch(formData) {
     }
 }
 
-export async function fetchMatches(selectedFilter) {
+export async function fetchMatches(filter) {
     let matchesQuery;
+    let constraints = [];
 
-    if (selectedFilter = 'all') {
-        matchesQuery = query(
-            collection(db, 'matches'),
-            limit(10)
-        );
+    if (filter.creatorID) {
+        constraints.push(where('creatorID','==',filter.creatorID))
     }
+
+    constraints.push(limit(10))
+
+    matchesQuery = query(
+        collection(db, 'matches'),
+        ...constraints
+    );
 
     const querySnapshot = await getDocs(matchesQuery);
     const matches = querySnapshot.docs.map(doc => ({
@@ -45,4 +51,8 @@ export async function fetchMatches(selectedFilter) {
         ...doc.data()
     }));
     return matches;
+}
+
+export async function joinMatch(matchID) {
+
 }

@@ -1,8 +1,10 @@
 export const LocationEnum = {
     VICTORIA_PARK_COURTS: 1,
-    SOUTH_PARK_FIELD: 2,
-    DOWNTOWN_YMCA: 3,
-    CENTENNIAL_STADIUM: 4
+    HAPPEY_VALLEY: 2,
+    KOWLOON_PARK: 3,
+    KINGS_PARK: 4,
+    ISLAND_SCHOOL_SPORTS_HALL: 10,
+    ISLAND_SCHOOL_PITCH: 11
 };
 
 export const LocationDetails = {
@@ -11,19 +13,25 @@ export const LocationDetails = {
         lat: 22.2822,
         lng: 114.1895
     },
-    [LocationEnum.SOUTH_PARK_FIELD]: {
-        name: "South Park Soccer Field",
+    [LocationEnum.HAPPEY_VALLEY]: {
+        name: "Happy Valley Recreational Ground",
         lat: 22.2750,
         lng: 114.1720
     },
-    [LocationEnum.DOWNTOWN_YMCA]: {
-        name: "Downtown YMCA Indoor Gym",
+    [LocationEnum.KOWLOON_PARK]: {
+        name: "Kowloon Park 7-a-side pitch",
         lat: 22.2951,
         lng: 114.1685
     },
-    [LocationEnum.CENTENNIAL_STADIUM]: {
-        name: "Centennial Park Stadium",
+    [LocationEnum.KINGS_PARK]: {
+        name: "Kings Park Sports GROUND",
         lat: 22.3100,
         lng: 114.1900
+    },
+    [LocationEnum.ISLAND_SCHOOL_SPORTS_HALL]: {
+        name: "Island School Sports Hall"
+    },
+    [LocationEnum.ISLAND_SCHOOL_PITCH]: {
+        name: "Island School Sports Pitch"
     }
 };
