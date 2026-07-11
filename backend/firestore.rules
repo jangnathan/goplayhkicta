@@ -18,7 +18,25 @@ service cloud.firestore {
     }
     match /matches/{matchId} {
       allow read: if request.auth != null;
-      allow create: if request.auth != null;
+      allow create: if request.auth != null
+                    && request.resource.data.createdAt != null
+                    && request.resource.data.createdAt == request.time
+                    && request.resource.data.creatorID == request.auth.uid;
+      allow update: if request.auth != null
+        && request.resource.data.keys().hasOnly(resource.data.keys())
+        && request.resource.data.creatorID == resource.data.creatorID
+        && request.resource.data.title == resource.data.title
+        && request.resource.data.description == resource.data.description
+        && request.resource.data.sport == resource.data.sport
+        && request.resource.data.locationID == resource.data.locationID
+        && request.resource.data.spotsTotal == resource.data.spotsTotal
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.joinedPlayers.hasAll(resource.data.joinedPlayers)
+        && request.resource.data.joinedPlayers.size() == resource.data.joinedPlayers.size() + 1
+        && request.resource.data.joinedPlayers.toSet()
+         .difference(resource.data.joinedPlayers.toSet())
+         .hasOnly([request.auth.uid])
+        && resource.data.joinedPlayers.size() < resource.data.spotsTotal;
     }
   }
 }

@@ -1,8 +1,9 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { ensureUserProfile } from "./user.js";
 
 import { writable } from "svelte/store";
 import { browser } from "$app/env";
@@ -40,6 +41,8 @@ class AuthManager {
       if (auth) {
         onAuthStateChanged(auth, (firebaseUser) => {
           this.user = firebaseUser;
+
+          ensureUserProfile(firebaseUser);
         });
       }
     }

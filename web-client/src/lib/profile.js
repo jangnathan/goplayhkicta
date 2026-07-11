@@ -42,12 +42,3 @@ export async function setUserProfile(options) {
         await updateProfile(user, { displayName: options.displayName });
     }
 }
-
-export async function changeUserPassword(currentPassword, newPassword) {
-    const user = authState.user;
-    if (!user || !user.email) throw new Error("No authenticated user.");
-
-    const credential = EmailAuthProvider.credential(user.email, currentPassword);
-    await reauthenticateWithCredential(user, credential);
-    await updatePassword(user, newPassword);
-}

@@ -1,10 +1,13 @@
 <script>
 	import { onMount } from 'svelte';
 	import { activePage } from '$lib/dashboard';
-	import { authState } from '$lib/firebase.svelte';
-	import { setUserProfile, changeUserPassword } from '$lib/profile';
+	import { authState, db } from '$lib/firebase.svelte';
+	import { setUserProfile } from '$lib/profile';
+	import { changeUserPassword } from '$lib/user';
+	import { doc, getDoc } from 'firebase/firestore';
 
 	let displayName = '';
+	let bio = '';
 	let currentPassword = '';
 	let newPassword = '';
 	let confirmPassword = '';
@@ -15,11 +18,25 @@
 	let savingProfile = false;
 	let changingPassword = false;
 
+	async function loadUserProfile() {
+		const user = authState.user;
+		if (!user) return;
+
+		displayName = user.displayName || '';
+
+		const profileRef = doc(db, 'users', user.uid);
+		const profileSnap = await getDoc(profileRef);
+
+		if (profileSnap.exists()) {
+			const data = profileSnap.data();
+			bio = data.bio || '';
+			displayName = data.displayName || displayName;
+		}
+	}
+
 	onMount(() => {
 		activePage.set('setting');
-		if (authState.user?.displayName) {
-			displayName = authState.user.displayName;
-		}
+		loadUserProfile();
 	});
 
 	async function saveDisplayName() {
@@ -28,36 +45,12 @@
 		savingProfile = true;
 
 		try {
-			await setUserProfile({ displayName });
-			profileMessage = 'Display name updated successfully.';
+			await setUserProfile({ displayName, bio });
+			profileMessage = 'Profile updated successfully.';
 		} catch (err) {
-			profileError = err?.message || 'Unable to update display name.';
+			profileError = err?.message || 'Unable to update profile.';
 		} finally {
 			savingProfile = false;
-		}
-	}
-
-	async function updatePassword() {
-		passwordMessage = '';
-		passwordError = '';
-
-		if (!currentPassword || !newPassword || newPassword !== confirmPassword) {
-			passwordError = 'Please fill all fields and make sure passwords match.';
-			return;
-		}
-
-		changingPassword = true;
-
-		try {
-			await changeUserPassword(currentPassword, newPassword);
-			passwordMessage = 'Password changed successfully.';
-			currentPassword = '';
-			newPassword = '';
-			confirmPassword = '';
-		} catch (err) {
-			passwordError = err?.message || 'Unable to change password.';
-		} finally {
-			changingPassword = false;
 		}
 	}
 </script>
@@ -65,10 +58,10 @@
 <section class="page-shell">
 	<div class="form-card">
 		<h1>Account settings</h1>
-		<p class="description">Update your display name and securely change your password.</p>
+		<p class="description">Update your display name, bio, and securely change your password.</p>
 
 		<div class="section">
-			<h2>Display name</h2>
+			<h2>Profile</h2>
 			<div class="field-group">
 				<label for="displayName">Display name</label>
 				<input
@@ -78,8 +71,17 @@
 					placeholder="Enter display name"
 				/>
 			</div>
+			<div class="field-group">
+				<label for="bio">Bio</label>
+				<textarea
+					id="bio"
+					rows="4"
+					bind:value={bio}
+					placeholder="Tell people a little about yourself."
+				/>
+			</div>
 			<button on:click|preventDefault={saveDisplayName} disabled={savingProfile}>
-				{savingProfile ? 'Saving...' : 'Save display name'}
+				{savingProfile ? 'Saving...' : 'Save profile'}
 			</button>
 			{#if profileMessage}
 				<p class="message success">{profileMessage}</p>
@@ -224,5 +226,22 @@
 
 	.message.error {
 		color: #dc2626;
+	}
+
+	textarea {
+		width: 100%;
+		resize: vertical;
+		padding: 0.95rem 1rem;
+		border: 1px solid var(--border-color);
+		border-radius: var(--radius-md);
+		background: #f8fafc;
+		color: var(--text-dark);
+		transition: var(--transition);
+		min-height: 110px;
+	}
+	textarea:focus {
+		outline: none;
+		border-color: var(--primary);
+		box-shadow: 0 0 0 3px rgba(255, 59, 43, 0.12);
 	}
 </style>
