@@ -3,7 +3,7 @@
 	import { SportLabels } from '$lib/sports';
 	import { db, authState } from '$lib/firebase.svelte';
 	import { doc, getDoc } from 'firebase/firestore';
-	import { joinMatch } from '$lib/matches';
+	import { joinMatch, formatMatchDate } from '$lib/matches';
 	import ProfilePic from './ProfilePic.svelte';
 
 	let { match } = $props();
@@ -13,28 +13,6 @@
 	let creatorDisplayName = $state(undefined);
 	let creatorPhotoURL = $state(undefined);
 	let finishedLoadingCreatorInfo = $state(false);
-
-	function formatMatchDate(value) {
-		if (!value) return 'No date set';
-
-		const date =
-			value.toDate?.() ??
-			(value.seconds ? new Date(value.seconds * 1000) : null) ??
-			(typeof value === 'string' ? new Date(value) : null) ??
-			(value instanceof Date ? value : null);
-
-		if (!date || Number.isNaN(date.getTime())) {
-			return 'No date set';
-		}
-
-		return new Intl.DateTimeFormat('en-US', {
-			month: 'short',
-			day: 'numeric',
-			year: 'numeric',
-			hour: 'numeric',
-			minute: '2-digit'
-		}).format(date);
-	}
 
 	const matchDate = formatMatchDate(match.date || match.createdAt);
 

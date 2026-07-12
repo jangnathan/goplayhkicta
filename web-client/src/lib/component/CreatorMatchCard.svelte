@@ -1,15 +1,29 @@
 <script>
-	import { LocationDetails } from "$lib/locations";
-	import { SportLabels } from "$lib/sports";
+	import { createEventDispatcher } from 'svelte';
+	import { LocationDetails } from '$lib/locations';
+	import { SportLabels } from '$lib/sports';
+	import { formatMatchDate, deleteMatch } from '$lib/matches';
 
+	const dispatch = createEventDispatcher();
 	let { match } = $props();
 
-    let showConfirm = $state(false);
-    let isDeleting = $state(false);
+	let showConfirm = $state(false);
+	let isDeleting = $state(false);
 
-    function handleDelete() {
-
-    }
+	async function handleDelete() {
+		isDeleting = true;
+		try {
+			await deleteMatch(match.id);
+			dispatch('deleted', { id: match.id });
+		} catch (err) {
+			console.error('Delete failed', err);
+			isDeleting = false;
+			showConfirm = false;
+		} finally {
+			isDeleting = false;
+		}
+	}
+	const matchDate = formatMatchDate(match.date || match.createdAt);
 </script>
 
 <div class="match-card">
@@ -45,7 +59,7 @@
 		<div class="details">
 			<p class="detail-item">
 				<i class="ri-calendar-event-line icon"></i>
-				{match.createdAt}
+				{matchDate}
 			</p>
 			<p class="detail-item">
 				<i class="ri-map-pin-line icon"></i>

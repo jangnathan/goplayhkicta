@@ -3,8 +3,10 @@ export const LocationEnum = {
     HAPPEY_VALLEY: 2,
     KOWLOON_PARK: 3,
     KINGS_PARK: 4,
+    HONG_KONG_INTERNATIONAL_SCHOOL: 5,
     ISLAND_SCHOOL_SPORTS_HALL: 10,
-    ISLAND_SCHOOL_PITCH: 11
+    ISLAND_SCHOOL_PITCH: 11,
+    WEST_ISLAND_SCHOOL_PITCH: 12,
 };
 
 export const LocationDetails = {
@@ -28,10 +30,15 @@ export const LocationDetails = {
         lat: 22.3100,
         lng: 114.1900
     },
-    [LocationEnum.ISLAND_SCHOOL_SPORTS_HALL]: {
-        name: "Island School Sports Hall"
+    [LocationEnum.HONG_KONG_INTERNATIONAL_SCHOOL]: {
+        name: "Hong Kong International School",
+        lat: 22.2760,
+        lng: 114.1520
     },
     [LocationEnum.ISLAND_SCHOOL_PITCH]: {
         name: "Island School Sports Pitch"
+    },
+    [LocationEnum.WEST_ISLAND_SCHOOL_PITCH]: {
+        name: "West Island School Sports Pitch"
     }
 };

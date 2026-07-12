@@ -6,8 +6,10 @@
 	import { changeUserPassword } from '$lib/user';
 	import { doc, getDoc } from 'firebase/firestore';
 
-	let displayName = '';
-	let bio = '';
+	let displayName = $state('');
+	let bio = $state('');
+
+	// passwords do not need state
 	let currentPassword = '';
 	let newPassword = '';
 	let confirmPassword = '';

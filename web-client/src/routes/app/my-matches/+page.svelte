@@ -1,5 +1,6 @@
 <script>
 	import CreatorMatchCard from '$lib/component/CreatorMatchCard.svelte';
+	import JoinedMatchCard from '$lib/component/JoinedMatchCard.svelte';
 	import { activePage } from '$lib/dashboard';
 	import { authState } from '$lib/firebase.svelte';
 	import { fetchMatches } from '$lib/matches';
@@ -8,15 +9,25 @@
 	// Tell your sidebar layout that "my-matches" is the active view
 	activePage.set('my-matches');
 
-	let hostingMatches = [];
+	let hostingMatches = $state([]);
 	let isLoadingHostingMatches = $state(true);
+	let joinedMatches = $state([]);
+	let isLoadingJoinedMatches = $state(true);
 
 	onMount(async () => {
 		hostingMatches = await fetchMatches({ creatorID: authState.user?.uid });
 		isLoadingHostingMatches = false;
+		joinedMatches = await fetchMatches({ joinedPlayerID: authState.user?.uid });
+		isLoadingJoinedMatches = false;
 	});
 
-	let joinedMatches = [];
+	function handleDeleted(event) {
+		hostingMatches = hostingMatches.filter((match) => match.id !== event.detail.id);
+	}
+
+	function handleLeft(event) {
+		joinedMatches = joinedMatches.filter((match) => match.id !== event.detail.id);
+	}
 </script>
 
 <div class="page-layout">
@@ -36,11 +47,24 @@
 			{:else}
 				<div class="matches-grid">
 					{#each hostingMatches as match}
-						<CreatorMatchCard {match}></CreatorMatchCard>
+						<CreatorMatchCard {match} on:deleted={handleDeleted}></CreatorMatchCard>
 					{/each}
 				</div>
 			{/if}
 		</section>
+		<section class="schedule-group">
+			<h2 class="section-heading">Matches You've Joined</h2>
+			{#if isLoadingJoinedMatches || joinedMatches.length === 0}
+				<div class="empty-state">
+					<p>You haven't joined any matches yet.</p>
+				</div>
+			{:else}
+				<div class="matches-grid">
+					{#each joinedMatches as match}
+						<JoinedMatchCard {match} on:left={handleLeft}></JoinedMatchCard>
+					{/each}
+				</div>
+			{/if}
 	</div>
 </div>
 
