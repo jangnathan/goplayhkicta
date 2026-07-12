@@ -55,6 +55,30 @@
 			savingProfile = false;
 		}
 	}
+
+	async function changePassword() {
+		passwordMessage = '';
+		passwordError = '';
+		changingPassword = true;
+
+		if (newPassword !== confirmPassword) {
+			passwordError = 'New password and confirmation do not match.';
+			changingPassword = false;
+			return;
+		}
+
+		try {
+			await changeUserPassword(currentPassword, newPassword);
+			passwordMessage = 'Password updated successfully.';
+			currentPassword = '';
+			newPassword = '';
+			confirmPassword = '';
+		} catch (err) {
+			passwordError = err?.message || 'Unable to change password.';
+		} finally {
+			changingPassword = false;
+		}
+	}
 </script>
 
 <section class="page-shell">
@@ -111,7 +135,7 @@
 				<label for="confirmPassword">Confirm new password</label>
 				<input id="confirmPassword" type="password" bind:value={confirmPassword} />
 			</div>
-			<button on:click|preventDefault={updatePassword} disabled={changingPassword}>
+			<button on:click|preventDefault={changePassword} disabled={changingPassword}>
 				{changingPassword ? 'Updating...' : 'Update password'}
 			</button>
 			{#if passwordMessage}
