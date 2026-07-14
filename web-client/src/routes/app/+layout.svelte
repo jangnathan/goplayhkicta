@@ -98,6 +98,19 @@
 		overflow: hidden;
 	}
 
+	.container {
+		display: flex;
+		flex-direction: row;
+		height: 100%;
+		width: 100%;
+	}
+	.main-content {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		width: 100%;
+	}
+
 	.top-bar {
 		width: 100%;
 		height: 64px;

@@ -36,9 +36,27 @@ export const LocationDetails = {
         lng: 114.1520
     },
     [LocationEnum.ISLAND_SCHOOL_PITCH]: {
-        name: "Island School Sports Pitch"
+        name: "Island School Sports Pitch",
+        lat: 22.2755,
+        lng: 114.1550
     },
     [LocationEnum.WEST_ISLAND_SCHOOL_PITCH]: {
-        name: "West Island School Sports Pitch"
+        name: "West Island School Sports Pitch",
+        lat: 22.2750,
+        lng: 114.1500
     }
+};
+
+export const LocationGroups = {
+    "Hong Kong Island": [
+        LocationEnum.VICTORIA_PARK_COURTS,
+        LocationEnum.HAPPEY_VALLEY,
+        LocationEnum.KINGS_PARK,
+        LocationEnum.HONG_KONG_INTERNATIONAL_SCHOOL,
+        LocationEnum.ISLAND_SCHOOL_PITCH,
+        LocationEnum.WEST_ISLAND_SCHOOL_PITCH
+    ],
+    "Kowloon": [
+        LocationEnum.KOWLOON_PARK
+    ]
 };

@@ -5,22 +5,44 @@
 	import { LocationEnum, LocationDetails } from '$lib/locations';
 	import { fetchMatches } from '$lib/matches';
 	import FeedCard from '$lib/component/FeedCard.svelte';
+	import FilterBar from '$lib/component/FilterBar.svelte';
 
 	onMount(() => {
 		activePage.set('home');
 	});
 
-	let selectedFilter = 'all';
-
 	let isLoadingMatches = $state(true);
+	let hasMoreMatches = $state(false);
+
+	let filter = $state({ limit: 10, sport: null, island: null, court: null, orderBy: 'recency' });
 	let allMatches = [];
 
 	onMount(async () => {
 		activePage.set('home');
 
-		allMatches = await fetchMatches(selectedFilter);
+		const fetchResult = await fetchMatches({ ...filter });
+		hasMoreMatches = fetchResult.hasMore;
+
+		allMatches = fetchResult.matches;
 		isLoadingMatches = false;
 	});
+
+	async function loadMoreMatches() {
+		isLoadingMatches = true;
+		const fetchResult = await fetchMatches({ ...filter, offset: allMatches.length });
+		allMatches = [...allMatches, ...fetchResult.matches];
+		hasMoreMatches = fetchResult.hasMore;
+		isLoadingMatches = false;
+	}
+
+	async function setFilter(newFilter) {
+		filter = { ...filter, ...newFilter };
+		isLoadingMatches = true;
+		const fetchResult = await fetchMatches({ ...filter });
+		allMatches = fetchResult.matches;
+		hasMoreMatches = fetchResult.hasMore;
+		isLoadingMatches = false;
+	}
 </script>
 
 <div class="page-layout">
@@ -36,24 +58,7 @@
 		</a>
 	</header>
 
-	<div class="filter-bar">
-		<button
-			class="filter-pill"
-			class:active={selectedFilter === 'all'}
-			on:click={() => (selectedFilter = 'all')}
-		>
-			All Sports
-		</button>
-		{#each Object.entries(SportLabels) as [id, label]}
-			<button
-				class="filter-pill"
-				class:active={selectedFilter === id}
-				on:click={() => (selectedFilter = id)}
-			>
-				{label}
-			</button>
-		{/each}
-	</div>
+	<FilterBar {filter} on:change={(e) => setFilter(e.detail)} />
 
 	<main class="feed-container">
 		{#if isLoadingMatches}
@@ -71,6 +76,12 @@
 						<FeedCard match={match}></FeedCard>
 					{/each}
 				</div>
+				
+				{#if hasMoreMatches}
+					<button class="load-more-button btn" on:click={loadMoreMatches}>
+						Load More Matches
+					</button>
+				{/if}
 			{/if}
 		{/if}
 	</main>
@@ -170,6 +181,10 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
 		gap: 1.75rem;
+		align-items: start;
+		max-width: calc(3 * 320px + 2 * 1.75rem); /* limit to 3 columns + gaps */
+		width: 100%;
+		box-sizing: border-box;
 	}
 
 	.empty-state {

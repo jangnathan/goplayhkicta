@@ -5,6 +5,7 @@ import {
     query,
     getDocs,
     limit,
+    orderBy,
     serverTimestamp,
     where,
     doc,
@@ -14,6 +15,7 @@ import {
     arrayUnion,
     arrayRemove
 } from "firebase/firestore";
+import { LocationEnum, LocationGroups } from '$lib/locations';
 
 export const MAX_MATCH_SPOTS = 20;
 
@@ -29,6 +31,7 @@ export async function createMatch(formData) {
             locationID: formData.locationID,
             spotsTotal: Number(formData.spotsTotal),
             joinedPlayers: [authState.user?.uid],
+            joinCount: 1,
 
             // CRITICAL: Must match request.auth.uid in your Security Rule
             creatorID: authState.user?.uid,
@@ -56,8 +59,30 @@ export async function fetchMatches(filter) {
     if (filter.joinedPlayerID) {
         constraints.push(where('joinedPlayers', 'array-contains', filter.joinedPlayerID))
     }
+    if (filter.sport) {
+        constraints.push(where('sport', '==', filter.sport))
+    }
+    if (filter.island && filter.court == undefined) {
+        // push all locationIDs in selected island in LocationGroups
+        const locationIDs = LocationGroups[filter.island] || [];
+        console.log('locationIDs', locationIDs);
 
-    constraints.push(limit(10))
+        constraints.push(where('locationID', 'in', locationIDs));
+    } else if (filter.court) {
+        constraints.push(where('locationID', '==', filter.court));
+    }
+    if (filter.orderBy) {
+        if (filter.orderBy === 'recency') {
+            constraints.push(orderBy('createdAt', 'desc'));
+        } else if (filter.orderBy === 'spotsAvailable') {
+            constraints.push(orderBy('joinedCount', 'asc'));
+        } else if (filter.orderBy === 'relevance') {
+            // currently none
+            // constraints.push(orderBy('relevanceScore', 'desc'));
+        }
+    }
+
+    constraints.push(limit(filter.limit + 1 || 10));
 
     matchesQuery = query(
         collection(db, 'matches'),
@@ -65,11 +90,20 @@ export async function fetchMatches(filter) {
     );
 
     const querySnapshot = await getDocs(matchesQuery);
+
+    let hasMore = false;
+    if (querySnapshot.size > filter.limit) {
+        hasMore = true;
+        querySnapshot.docs.pop(); // Remove the extra document used to check for more
+    }
+    
     const matches = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
     }));
-    return matches;
+
+
+    return { matches: matches, hasMore };
 }
 
 export async function fetchMatchById(matchID) {
@@ -83,6 +117,9 @@ export async function fetchMatchById(matchID) {
         ...matchSnap.data()
     };
 }
+
+// Data migration
+
 
 export async function updateMatch(matchID, updateData) {
     const matchRef = doc(db, 'matches', matchID);

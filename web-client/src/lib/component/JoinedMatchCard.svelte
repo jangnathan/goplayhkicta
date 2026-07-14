@@ -59,7 +59,7 @@
 	}
 
 	function handleView() {
-		goto(`/app/match/view/${match.id}`);
+		goto(`/app/matches/${match.id}`);
 	}
 
 	function getMemberSnapshot() {
@@ -127,8 +127,9 @@
 <style>
 	.joined-card {
 		width: 100%;
-		min-width: 360px;
-		max-width: 560px;
+		box-sizing: border-box;
+		max-width: 400px;
+		align-self: start;
 		background: var(--card-bg);
 		border: 1px solid var(--border-color);
 		border-radius: var(--radius-lg);

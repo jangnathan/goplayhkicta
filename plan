@@ -6,11 +6,17 @@ add deletion
 
 Allow leaving the matches
 
+Load more button
+Refresh
+Filtering feature.
+
+Add view feature to view members, similar to edit,
+- add share link
+Add map feature
+Map feature with google map? (view map button)
 
 TODO:
-Filtering feature.
-Add map feature
-Map feature with google? (view map button)
+Data migration of schema firestore
 Allow friends + chats?
 DARK MODE
 

@@ -4,7 +4,10 @@
 	import { db, authState } from '$lib/firebase.svelte';
 	import { doc, getDoc } from 'firebase/firestore';
 	import { joinMatch, formatMatchDate } from '$lib/matches';
+
+	import { goto } from '$app/navigation';
 	import ProfilePic from './ProfilePic.svelte';
+	import Map from './Map.svelte';
 
 	let { match } = $props();
 	let joinError = '';
@@ -18,9 +21,10 @@
 
 	let alreadyJoined = $state(false);
 	$effect(() => {
-		alreadyJoined = authState.user && Array.isArray(match.joinedPlayers)
-			? match.joinedPlayers.includes(authState.user.uid)
-			: false;
+		alreadyJoined =
+			authState.user && Array.isArray(match.joinedPlayers)
+				? match.joinedPlayers.includes(authState.user.uid)
+				: false;
 	});
 
 	async function handleJoin() {
@@ -68,6 +72,15 @@
 		}
 		finishedLoadingCreatorInfo = true;
 	});
+
+	function viewMore() {
+		goto(`/app/matches/${match.id}`);
+	}
+
+	let showMap = $state(false);
+	function viewMap() {
+		showMap = !showMap;
+	}
 </script>
 
 {#if !finishedLoadingCreatorInfo}
@@ -76,13 +89,17 @@
 	</div>
 {:else}
 	<div class="match-card">
-		<span class="sport-tag">{SportLabels[match.sport]}</span>
-
+		<div class="actions-menu">
+			<button class="view-action" onclick={viewMore}>View more</button>
+			<button class="view-map" onclick={viewMap}><i class="ri-map-2-line"></i></button>
+		</div>
 		<h3 class="match-title">{match.title}</h3>
 		<p class="match-location">
 			<i class="ri-map-pin-line"></i>
 			{LocationDetails[match.locationID]?.name || 'Unknown Location'}
 		</p>
+		<span class="sport-tag">{SportLabels[match.sport]}</span>
+
 		<p class="match-date">
 			<i class="ri-calendar-line"></i>
 			{matchDate}
@@ -97,6 +114,10 @@
 			/>
 			<span class="creator-name">Organized by {creatorDisplayName}</span>
 		</div>
+
+		{#if showMap}
+			<Map locationID={match.locationID} height="300px" />
+		{/if}
 
 		<div class="match-footer">
 			<div class="spots-indicator">
@@ -115,7 +136,7 @@
 			<button
 				class="join-button"
 				disabled={alreadyJoined || match.joinedPlayers.length >= match.spotsTotal || joining}
-				on:click={handleJoin}
+				onclick={handleJoin}
 			>
 				{joining
 					? 'Joining…'
@@ -134,6 +155,23 @@
 {/if}
 
 <style>
+	.actions-menu {
+		display: flex;
+		justify-content: flex-end;
+		margin-bottom: 0.75rem;
+	}
+	.actions-menu button {
+		background-color: transparent;
+		color: var(--primary);
+		border: 1px solid var(--primary);
+		padding: 0.4rem 0.8rem;
+		margin: 0 0.25rem;
+		border-radius: var(--radius-md);
+		font-weight: 600;
+		cursor: pointer;
+		transition: var(--transition);
+	}
+
 	/* Match Card Architecture */
 	.match-card {
 		background: var(--card-bg);

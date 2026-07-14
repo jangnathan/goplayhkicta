@@ -47,8 +47,6 @@ service cloud.firestore {
 
       function joinUpdateRules() {
         return request.resource.data.creatorID == resource.data.creatorID
-        // do not let creator join their own match
-          && request.auth.uid != resource.data.creatorID
           && request.resource.data.title == resource.data.title
           && request.resource.data.description == resource.data.description
           && request.resource.data.sport == resource.data.sport
@@ -67,8 +65,6 @@ service cloud.firestore {
 
       function leaveUpdateRules() {
         return request.resource.data.creatorID == resource.data.creatorID
-        // reject if creator tries to leave their own match
-          && request.auth.uid != resource.data.creatorID
           && request.resource.data.title == resource.data.title
           && request.resource.data.description == resource.data.description
           && request.resource.data.sport == resource.data.sport

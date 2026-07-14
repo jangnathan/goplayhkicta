@@ -11,14 +11,24 @@
 
 	let hostingMatches = $state([]);
 	let isLoadingHostingMatches = $state(true);
+	let hasMoreHostingMatches = $state(false);
 	let joinedMatches = $state([]);
 	let isLoadingJoinedMatches = $state(true);
+	let hasMoreJoinedMatches = $state(false);
 
 	onMount(async () => {
-		hostingMatches = await fetchMatches({ creatorID: authState.user?.uid });
+		const fetchResult = await fetchMatches({ creatorID: authState.user?.uid, limit: 10 });
+		hostingMatches = fetchResult.matches;
 		isLoadingHostingMatches = false;
-		joinedMatches = await fetchMatches({ joinedPlayerID: authState.user?.uid });
+		hasMoreHostingMatches = fetchResult.hasMore;
+
+		const joinedFetchResult = await fetchMatches({
+			joinedPlayerID: authState.user?.uid,
+			limit: 10
+		});
+		joinedMatches = joinedFetchResult.matches;
 		isLoadingJoinedMatches = false;
+		hasMoreJoinedMatches = joinedFetchResult.hasMore;
 	});
 
 	function handleDeleted(event) {
@@ -27,6 +37,30 @@
 
 	function handleLeft(event) {
 		joinedMatches = joinedMatches.filter((match) => match.id !== event.detail.id);
+	}
+
+	async function loadMoreHostingMatches() {
+		isLoadingHostingMatches = true;
+		const fetchResult = await fetchMatches({
+			creatorID: authState.user?.uid,
+			limit: 10,
+			offset: hostingMatches.length
+		});
+		hostingMatches = [...hostingMatches, ...fetchResult.matches];
+		isLoadingHostingMatches = false;
+		hasMoreHostingMatches = fetchResult.hasMore;
+	}
+
+	async function loadMoreJoinedMatches() {
+		isLoadingJoinedMatches = true;
+		const fetchResult = await fetchMatches({
+			joinedPlayerID: authState.user?.uid,
+			limit: 10,
+			offset: joinedMatches.length
+		});
+		joinedMatches = [...joinedMatches, ...fetchResult.matches];
+		isLoadingJoinedMatches = false;
+		hasMoreJoinedMatches = fetchResult.hasMore;
 	}
 </script>
 
@@ -50,6 +84,12 @@
 						<CreatorMatchCard {match} on:deleted={handleDeleted}></CreatorMatchCard>
 					{/each}
 				</div>
+
+				{#if hasMoreHostingMatches}
+					<button class="load-more-button btn" onclick={loadMoreHostingMatches}>
+						Load More
+					</button>
+				{/if}
 			{/if}
 		</section>
 		<section class="schedule-group">
@@ -65,6 +105,11 @@
 					{/each}
 				</div>
 			{/if}
+
+			{#if hasMoreJoinedMatches}
+				<button class="load-more-button btn" onclick={loadMoreJoinedMatches}> Load More </button>
+			{/if}
+		</section>
 	</div>
 </div>
 
@@ -135,112 +180,22 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 		gap: 1.5rem;
+		align-items: start;
+		max-width: calc(3 * 300px + 2 * 1.5rem); /* 3 columns + gaps */
+		width: 100%;
+		box-sizing: border-box;
 	}
 
-	/* Structural Cards styling */
-	.match-card {
-		background: var(--card-bg);
-		border: 1px solid var(--border-color);
-		border-radius: var(--radius-lg);
-		padding: 1.5rem;
-		box-shadow: var(--shadow);
-		display: flex;
-		flex-direction: column;
-		position: relative;
-		transition: var(--transition);
-	}
-
-	/* Subtle border difference for hosted matches so they stand out */
-	.match-card.host-card {
-		border-left: 4px solid var(--primary);
-	}
-
-	.sport-tag {
-		font-size: 0.75rem;
-		text-transform: uppercase;
-		font-weight: 700;
-		color: var(--primary);
-		letter-spacing: 0.05em;
-		margin-bottom: 0.25rem;
-	}
-
-	.match-badge {
-		position: absolute;
-		top: 1.25rem;
-		right: 1.25rem;
-		background-color: var(--bg-main);
-		color: var(--text-muted);
-		padding: 0.25rem 0.75rem;
-		border-radius: var(--radius-lg);
-		font-size: 0.75rem;
-		font-weight: 600;
-		border: 1px solid var(--border-color);
-	}
-
-	.status-badge {
-		background-color: #fff5f2;
-		color: var(--primary);
-		border-color: #ffe4de;
-	}
-
-	.match-title {
-		font-size: 1.25rem;
-		color: var(--text-dark);
-		margin-bottom: 0.5rem;
-		padding-right: 5rem;
-	}
-
-	.match-location {
-		color: var(--text-muted);
-		font-size: 0.95rem;
-		margin-bottom: 1.5rem;
-	}
-
-	/* Structural actions footer container */
-	.match-footer {
-		margin-top: auto;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		border-top: 1px solid var(--border-color);
-		padding-top: 1rem;
-	}
-
-	.match-spots {
-		font-size: 0.9rem;
-		color: var(--text-muted);
-		font-weight: 500;
-	}
-
-	.manage-button {
+	.btn {
 		background-color: var(--secondary);
 		color: white;
 		border: none;
-		padding: 0.5rem 1.25rem;
+		padding: 0.5rem 1rem;
 		border-radius: var(--radius-md);
 		font-weight: 600;
 		cursor: pointer;
 		transition: var(--transition);
-	}
-
-	.manage-button:hover {
-		background-color: var(--secondary-hover);
-	}
-
-	.leave-button {
-		background-color: transparent;
-		color: #ef4444; /* Destructive action color */
-		border: 1px solid #fee2e2;
-		padding: 0.5rem 1.25rem;
-		border-radius: var(--radius-md);
-		font-weight: 500;
-		cursor: pointer;
-		transition: var(--transition);
-	}
-
-	.leave-button:hover {
-		background-color: #fef2f2;
-		border-color: #ef4444;
+		margin-top: 1rem;
 	}
 
 	.empty-state {

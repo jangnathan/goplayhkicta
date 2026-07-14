@@ -1,5 +1,5 @@
 import { db, authState } from "./firebase.svelte";
-import { serverTimestamp, doc, setDoc } from "firebase/firestore";
+import { serverTimestamp, doc, setDoc, getDoc } from "firebase/firestore";
 import {
     updatePassword,
     updateProfile,
@@ -41,4 +41,10 @@ export async function setUserProfile(options) {
     if (options.displayName && options.displayName !== user.displayName) {
         await updateProfile(user, { displayName: options.displayName });
     }
+}
+
+export async function fetchUserProfile(uid) {
+    const userRef = doc(db, "users", uid);
+    const snapshot = await getDoc(userRef);
+    return snapshot.data();
 }
