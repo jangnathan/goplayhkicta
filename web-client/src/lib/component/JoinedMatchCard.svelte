@@ -153,7 +153,7 @@
 		font-weight: 700;
 		text-transform: uppercase;
 		color: var(--primary);
-		background: #eff6ff;
+		background: var(--card-bg);
 		padding: 0.35rem 0.75rem;
 		border-radius: 9999px;
 		border: 1px solid rgba(59, 130, 246, 0.15);

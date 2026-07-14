@@ -7,6 +7,7 @@
     --secondary: #0f172a;
     --secondary-hover: #1e293b;
     --card-bg: #ffffff;
+    --input-bg: #fdfdfd;
     --border-color: #e2e8f0;
     --radius-lg: 16px;
     --radius-md: 8px;
@@ -20,4 +21,26 @@
 * {
     padding: 0;
     margin: 0;
+}
+
+html, body {
+    height: 100%;
+    background-color: var(--bg-main);
+    color: var(--text-dark);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Dark theme variables when the html element has the `dark` class */
+.dark {
+    --bg-main: #07111a;
+    --text-dark: #e6eef8;
+    --text-muted: #9aa9bb;
+    --primary: #ff3b2b;
+    --primary-hover: #e03a3a;
+    --secondary: #0b1220;
+    --secondary-hover: #122233;
+    --card-bg: #0f1724;
+    --input-bg: #0a111d;
+    --border-color: #16202a;
+    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6);
 }

@@ -114,11 +114,19 @@
 	.top-bar {
 		width: 100%;
 		height: 64px;
-		background-color: #fff;
+		background-color: var(--card-bg);
 		display: flex;
 		flex-direction: row;
 		justify-content: space-between;
 		align-items: center;
+	}
+
+	.theme-toggle {
+		background: none;
+		border: none;
+		font-size: 1.2rem;
+		margin-right: 8px;
+		cursor: pointer;
 	}
 	.top-bar .logo {
 		padding: 1rem;

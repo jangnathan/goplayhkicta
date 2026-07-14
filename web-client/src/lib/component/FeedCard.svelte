@@ -194,8 +194,8 @@
 		text-transform: uppercase;
 		font-weight: 700;
 		color: var(--primary);
-		background-color: #fff5f2;
-		border: 1px solid #ffe4de;
+		background-color: var(--card-bg);
+		border: 1px solid var(--primary);
 		padding: 0.25rem 0.6rem;
 		border-radius: var(--radius-md);
 		letter-spacing: 0.05em;

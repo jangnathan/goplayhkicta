@@ -19,6 +19,7 @@
 	let passwordError = '';
 	let savingProfile = false;
 	let changingPassword = false;
+	let isDark = $state(false);
 
 	async function loadUserProfile() {
 		const user = authState.user;
@@ -39,6 +40,11 @@
 	onMount(() => {
 		activePage.set('setting');
 		loadUserProfile();
+		try {
+			isDark = document.documentElement.classList.contains('dark');
+		} catch (e) {
+			isDark = false;
+		}
 	});
 
 	async function saveDisplayName() {
@@ -79,6 +85,25 @@
 			changingPassword = false;
 		}
 	}
+
+	function onThemeChange(e) {
+		try {
+			// checkbox change will have the new value bound to isDark already
+			if (typeof e?.target?.checked === 'boolean') {
+				isDark = e.target.checked;
+			}
+
+			if (isDark) {
+				document.documentElement.classList.add('dark');
+				localStorage.setItem('theme', 'dark');
+			} else {
+				document.documentElement.classList.remove('dark');
+				localStorage.setItem('theme', 'light');
+			}
+		} catch (e) {
+			// ignore
+		}
+	}
 </script>
 
 <section class="page-shell">
@@ -115,6 +140,30 @@
 			{#if profileError}
 				<p class="message error">{profileError}</p>
 			{/if}
+		</div>
+
+		<div class="section">
+			<h2>Appearance</h2>
+			<p class="description small-text">Switch between light and dark themes.</p>
+			<div class="field-group">
+				<label for="themeToggle">Theme</label>
+
+				<div class="theme-switch">
+					<span class="ts-icon sun"><i class="ri-sun-line"></i></span>
+					<label class="switch" aria-hidden="false">
+						<input
+							id="themeToggle"
+							type="checkbox"
+							bind:checked={isDark}
+							on:change={onThemeChange}
+						/>
+						<span class="track" aria-hidden="true">
+							<span class="thumb" />
+						</span>
+					</label>
+					<span class="ts-icon moon"><i class="ri-moon-line"></i></span>
+				</div>
+			</div>
 		</div>
 
 		<div class="section">
@@ -169,13 +218,14 @@
 	h1 {
 		margin-bottom: 0.5rem;
 		font-size: 1.9rem;
+		color: var(--text-dark);
 	}
 
 	h2 {
 		margin-top: 1.75rem;
 		margin-bottom: 0.75rem;
 		font-size: 1.2rem;
-		color: var(--secondary);
+		color: var(--text-dark);
 	}
 
 	.description {
@@ -203,7 +253,7 @@
 		padding: 0.95rem 1rem;
 		border: 1px solid var(--border-color);
 		border-radius: var(--radius-md);
-		background: #f8fafc;
+		background: var(--input-bg);
 		color: var(--text-dark);
 		transition: var(--transition);
 	}
@@ -260,7 +310,7 @@
 		padding: 0.95rem 1rem;
 		border: 1px solid var(--border-color);
 		border-radius: var(--radius-md);
-		background: #f8fafc;
+		background: var(--input-bg);
 		color: var(--text-dark);
 		transition: var(--transition);
 		min-height: 110px;
@@ -269,5 +319,70 @@
 		outline: none;
 		border-color: var(--primary);
 		box-shadow: 0 0 0 3px rgba(255, 59, 43, 0.12);
+	}
+
+	/* Theme switch styles */
+	.theme-switch {
+		display: inline-flex;
+		align-items: center;
+		gap: 10px;
+	}
+
+	.ts-icon {
+		color: var(--text-muted);
+		font-size: 1.1rem;
+	}
+
+	.switch {
+		display: inline-block;
+		position: relative;
+		width: 56px;
+		height: 32px;
+	}
+
+	.switch input {
+		appearance: none;
+		-webkit-appearance: none;
+		opacity: 0;
+		position: absolute;
+		width: 0;
+		height: 0;
+		left: -9999px;
+	}
+
+	.track {
+		display: block;
+		width: 100%;
+		height: 100%;
+		background: var(--border-color);
+		border-radius: 999px;
+		position: relative;
+		transition: background 0.18s ease;
+		box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+	}
+
+	.thumb {
+		display: block;
+		width: 26px;
+		height: 26px;
+		background: white;
+		border-radius: 50%;
+		position: absolute;
+		top: 3px;
+		left: 3px;
+		transition:
+			transform 0.18s ease,
+			background 0.18s ease;
+		box-shadow: 0 2px 6px rgba(16, 24, 40, 0.12);
+	}
+
+	/* Checked state */
+	.switch input:checked + .track {
+		background: var(--primary);
+	}
+
+	.switch input:checked + .track .thumb {
+		transform: translateX(24px);
+		background: white;
 	}
 </style>
