@@ -1,5 +1,5 @@
 import { db, authState } from "./firebase.svelte";
-import { serverTimestamp, doc, setDoc, getDoc } from "firebase/firestore";
+import { serverTimestamp, doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
 import {
     updatePassword,
     updateProfile,
@@ -7,18 +7,11 @@ import {
     reauthenticateWithCredential
 } from "firebase/auth";
 
-export async function signUpCreateProfile(options) {
-    const userRef = doc(db, "users", options.uid);
+export async function deleteProfile(uid) {
+    const userRef = doc(db, "users", uid);
 
-    await setDoc(
+    await deleteDoc(
         userRef,
-        {
-            uid: options.uid,
-            displayName: options.displayName,
-            createdAt: serverTimestamp(),
-            bio: options.bio || ""
-        },
-        { merge: true }
     );
 }
 

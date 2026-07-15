@@ -12,7 +12,6 @@
 
 	} from 'firebase/auth';
 	import { auth } from '$lib/firebase.svelte';
-	import { signUpCreateProfile } from '$lib/profile';
 
 	// State management using Svelte 5 Runes
 	let displayName = $state(''); // Changed from name to displayName
@@ -33,11 +32,6 @@
 
 			if (userCredential.user) {
 				await updateProfile(userCredential.user, {
-					displayName: displayName
-				});
-
-				await signUpCreateProfile({
-					uid: userCredential.user.uid,
 					displayName: displayName
 				});
 			}
@@ -67,11 +61,6 @@
 
 			if (result.user) {
 				await updateProfile(result.user, {
-					displayName: displayName
-				});
-
-				await signUpCreateProfile({
-					uid: result.user.uid,
 					displayName: displayName
 				});
 			}
